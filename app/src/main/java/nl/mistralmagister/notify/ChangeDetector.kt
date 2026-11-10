@@ -27,12 +27,14 @@ object ChangeDetector {
     fun isCancelled(status: Int?): Boolean = status == 1 || status == 5
 }
 
-/** Kiest de les die nu of als volgende op het programma staat. */
+/** Kiest de les die nu bezig is, anders de eerstvolgende. */
 object NextLesson {
     fun pick(lessons: List<Appointment>, now: LocalDateTime = LocalDateTime.now()): Appointment? {
-        val today = lessons.filter { MagisterTime.dateTime(it.start)?.toLocalDate() == now.toLocalDate() }
-        val upcoming = today.filter { (MagisterTime.dateTime(it.start) ?: now) >= now }
-        return upcoming.minByOrNull { MagisterTime.dateTime(it.start) ?: now }
-            ?: today.minByOrNull { MagisterTime.dateTime(it.eind) ?: now }
+        val start = { MagisterTime.dateTime(it.start) ?: now }
+        val end = { MagisterTime.dateTime(it.eind) ?: now }
+        lessons.filter { start(it) <= now && end(it) > now }
+            .minByOrNull(start)
+            ?.let { return it }
+        return lessons.filter { start(it) >= now }.minByOrNull(start)
     }
 }
