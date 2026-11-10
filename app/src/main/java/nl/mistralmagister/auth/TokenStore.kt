@@ -59,9 +59,9 @@ object AuthRequestFactory {
     }
 
     private fun params(redirectUrl: String): Map<String, String> {
-        val normalized = redirectUrl.replace('#', '?')
-        if (!normalized.startsWith(MagisterEndpoints.REDIRECT_URI.trimEnd('/'))) return emptyMap()
-        return normalized.substringAfter('?', "").split('&').mapNotNull { part ->
+        if (!redirectUrl.startsWith(MagisterEndpoints.REDIRECT_URI.trimEnd('/'))) return emptyMap()
+        val pairs = redirectUrl.split('?', '#').drop(1).flatMap { it.split('&') }
+        return pairs.mapNotNull { part ->
             val eq = part.indexOf('=')
             if (eq <= 0) return@mapNotNull null
             part.substring(0, eq) to java.net.URLDecoder.decode(

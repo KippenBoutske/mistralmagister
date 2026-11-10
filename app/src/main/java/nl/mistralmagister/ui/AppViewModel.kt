@@ -19,7 +19,7 @@ import java.time.LocalDate
 
 sealed interface UiState {
     data object Loading : UiState
-    data object LoggedOut : UiState
+    data class LoggedOut(val error: String? = null) : UiState
     data class Ready(
         val displayName: String?,
         val schoolHost: String,
@@ -40,7 +40,7 @@ class AppViewModel(private val container: Container) : ViewModel() {
     init {
         viewModelScope.launch {
             val session = runCatching { container.repository.ensureFreshToken() }.getOrNull()
-            if (session?.personId != null) load() else _state.value = UiState.LoggedOut
+            if (session?.personId != null) load() else _state.value = UiState.LoggedOut()
         }
     }
 
@@ -66,7 +66,7 @@ class AppViewModel(private val container: Container) : ViewModel() {
         val pending = container.tokenStore.readPending() ?: return
         val error = AuthRequestFactory.extractError(url)
         if (error != null) {
-            _state.value = UiState.LoggedOut
+            _state.value = UiState.LoggedOut("Inloggen mislukt: $error")
             container.tokenStore.clearPending()
             return
         }
@@ -85,17 +85,21 @@ class AppViewModel(private val container: Container) : ViewModel() {
                     displayName = null,
                 )
                 val account = container.repository.fetchAccount(provisional)
+                val personId = account.id
+                    ?: throw IllegalStateException("Magister gaf geen persoon-id terug")
                 container.tokenStore.write(
                     provisional.copy(
-                        personId = account.id,
-                        displayName = account.naam,
+                        personId = personId,
+                        displayName = account.displayName,
                     ),
                 )
                 container.tokenStore.clearPending()
                 load()
             } catch (e: Exception) {
-                _state.value = UiState.LoggedOut
                 container.tokenStore.clear()
+                _state.value = UiState.LoggedOut(
+                    "Inloggen mislukt: " + (e.message ?: "onbekende fout"),
+                )
             }
         }
     }
@@ -132,7 +136,7 @@ class AppViewModel(private val container: Container) : ViewModel() {
             .remove(Container.KEY_SEEN_LESSONS)
             .remove(Container.KEY_SNAPSHOT_READY)
             .apply()
-        _state.value = UiState.LoggedOut
+        _state.value = UiState.LoggedOut()
     }
 
     private fun load(keepRefreshingFlag: Boolean = false) {
@@ -140,7 +144,7 @@ class AppViewModel(private val container: Container) : ViewModel() {
             val session = runCatching { container.repository.ensureFreshToken() }.getOrNull()
             val personId = session?.personId
             if (session == null || personId == null) {
-                _state.value = UiState.LoggedOut
+                _state.value = UiState.LoggedOut()
                 return@launch
             }
             val previous = _state.value as? UiState.Ready

@@ -7,12 +7,27 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 @Serializable
+data class AccountPersoon(
+    @SerialName("Id") val id: Int? = null,
+    @SerialName("Roepnaam") val roepnaam: String? = null,
+    @SerialName("Tussenvoegsel") val tussenvoegsel: String? = null,
+    @SerialName("Achternaam") val achternaam: String? = null,
+)
+
+@Serializable
 data class Account(
+    @SerialName("Persoon") val persoon: AccountPersoon? = null,
     @SerialName("PersoonId") val persoonId: Int? = null,
     @SerialName("PersonId") val personId: Int? = null,
     @SerialName("Naam") val naam: String? = null,
 ) {
-    val id: Int? get() = persoonId ?: personId
+    val id: Int? get() = persoon?.id ?: persoonId ?: personId
+    val displayName: String?
+        get() = listOfNotNull(
+            persoon?.roepnaam,
+            persoon?.tussenvoegsel,
+            persoon?.achternaam,
+        ).joinToString(" ").ifBlank { naam }
 }
 
 @Serializable

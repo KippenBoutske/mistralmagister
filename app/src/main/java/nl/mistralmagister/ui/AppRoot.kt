@@ -45,7 +45,7 @@ fun AppRoot(viewModel: AppViewModel, onOpenAuth: (String) -> Unit) {
 
     when (val s = state) {
         UiState.Loading -> LoadingScreen()
-        UiState.LoggedOut -> LoginScreen(viewModel, onOpenAuth)
+        is UiState.LoggedOut -> LoginScreen(viewModel, onOpenAuth, s.error)
         is UiState.Ready -> MainScaffold(viewModel, s)
     }
 }
