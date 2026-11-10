@@ -45,14 +45,25 @@ class ChangeDetectorTest {
     }
 
     @Test
-    fun `volgende les is de eerstvolgende van vandaag`() {
+    fun `les die nu bezig is wordt getoond`() {
         val now = LocalDateTime.parse("2030-01-01T08:00:00")
         val lessons = listOf(
             lesson(1, "2030-01-01T08:00:00"),
             lesson(2, "2030-01-01T09:00:00"),
             lesson(3, "2030-01-02T09:00:00"),
         )
-        assertEquals(2, NextLesson.pick(lessons, now)?.id)
+        assertEquals(1, NextLesson.pick(lessons, now)?.id)
+    }
+
+    @Test
+    fun `na de laatste les van vandaag komt de eerste van morgen`() {
+        val now = LocalDateTime.parse("2030-01-01T10:30:00")
+        val lessons = listOf(
+            lesson(1, "2030-01-01T08:00:00"),
+            lesson(2, "2030-01-01T09:00:00"),
+            lesson(3, "2030-01-02T09:00:00"),
+        )
+        assertEquals(3, NextLesson.pick(lessons, now)?.id)
     }
 
     @Test

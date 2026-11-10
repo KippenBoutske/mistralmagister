@@ -30,7 +30,8 @@ private val day = DateTimeFormatter.ofPattern("EEEE d MMMM")
 fun ScheduleScreen(ready: UiState.Ready) {
     val byDay = ready.lessons
         .groupBy { MagisterTime.dateTime(it.start)?.toLocalDate() }
-        .toSortedMap()
+        .entries
+        .sortedBy { it.key?.toEpochDay() ?: Long.MIN_VALUE }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
