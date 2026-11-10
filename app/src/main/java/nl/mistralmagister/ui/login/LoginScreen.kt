@@ -36,7 +36,7 @@ import nl.mistralmagister.ui.AppViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(viewModel: AppViewModel, onOpenAuth: (String) -> Unit) {
+fun LoginScreen(viewModel: AppViewModel, onOpenAuth: (String) -> Unit, error: String? = null) {
     var query by rememberSaveable { mutableStateOf("") }
     var selected by rememberSaveable { mutableStateOf<School?>(null) }
     var launching by remember { mutableStateOf(false) }
@@ -54,6 +54,14 @@ fun LoginScreen(viewModel: AppViewModel, onOpenAuth: (String) -> Unit) {
             "Onofficiële Magister-client. Log in met je schoolaccount.",
             style = MaterialTheme.typography.bodyMedium,
         )
+        error?.let {
+            Text(
+                it,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(Modifier.height(12.dp))
+        }
         Spacer(Modifier.height(28.dp))
         OutlinedTextField(
             value = query,
