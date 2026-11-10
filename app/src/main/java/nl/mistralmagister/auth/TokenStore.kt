@@ -109,15 +109,15 @@ class TokenStore(context: Context) {
 
     @Synchronized
     fun read(): StoredSession? {
-        val access = prefs.getString(KEY_ACCESS) ?: return null
+        val access = prefs.getString(KEY_ACCESS, null) ?: return null
         return StoredSession(
             accessToken = access,
-            refreshToken = prefs.getString(KEY_REFRESH),
-            idToken = prefs.getString(KEY_ID),
+            refreshToken = prefs.getString(KEY_REFRESH, null),
+            idToken = prefs.getString(KEY_ID, null),
             expiresAtEpochMs = prefs.getLong(KEY_EXPIRES, 0L),
-            tenantHost = prefs.getString(KEY_TENANT).orEmpty(),
+            tenantHost = prefs.getString(KEY_TENANT, null).orEmpty(),
             personId = prefs.getInt(KEY_PERSON, -1).takeIf { it > 0 },
-            displayName = prefs.getString(KEY_NAME),
+            displayName = prefs.getString(KEY_NAME, null),
         )
     }
 
@@ -162,9 +162,9 @@ class TokenStore(context: Context) {
     data class PendingAuth(val verifier: String, val state: String, val tenantHost: String)
 
     fun readPending(): PendingAuth? {
-        val verifier = prefs.getString(KEY_PENDING_VERIFIER) ?: return null
-        val state = prefs.getString(KEY_PENDING_STATE) ?: return null
-        return PendingAuth(verifier, state, prefs.getString(KEY_TENANT).orEmpty())
+        val verifier = prefs.getString(KEY_PENDING_VERIFIER, null) ?: return null
+        val state = prefs.getString(KEY_PENDING_STATE, null) ?: return null
+        return PendingAuth(verifier, state, prefs.getString(KEY_TENANT, null).orEmpty())
     }
 
     fun clearPending() {

@@ -2,6 +2,7 @@ package nl.mistralmagister.notify
 
 import nl.mistralmagister.data.Appointment
 import nl.mistralmagister.data.Grade
+import nl.mistralmagister.data.MagisterTime
 import java.time.LocalDateTime
 
 /** Pure diff-logica, los van Android zodat die unit-testbaar is. */
