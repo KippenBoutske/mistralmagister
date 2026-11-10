@@ -30,11 +30,11 @@ object ChangeDetector {
 /** Kiest de les die nu bezig is, anders de eerstvolgende. */
 object NextLesson {
     fun pick(lessons: List<Appointment>, now: LocalDateTime = LocalDateTime.now()): Appointment? {
-        val start = { MagisterTime.dateTime(it.start) ?: now }
-        val end = { MagisterTime.dateTime(it.eind) ?: now }
+        fun start(a: Appointment) = MagisterTime.dateTime(a.start) ?: now
+        fun end(a: Appointment) = MagisterTime.dateTime(a.eind) ?: now
         lessons.filter { start(it) <= now && end(it) > now }
-            .minByOrNull(start)
+            .minByOrNull { start(it) }
             ?.let { return it }
-        return lessons.filter { start(it) >= now }.minByOrNull(start)
+        return lessons.filter { start(it) >= now }.minByOrNull { start(it) }
     }
 }
